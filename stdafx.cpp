@@ -4,6 +4,7 @@
 // stdafx.obj 将包含预编译类型信息
 
 #include "stdafx.h"
+#include "pch.h"
 
 
 // 自定义的线程间通信消息

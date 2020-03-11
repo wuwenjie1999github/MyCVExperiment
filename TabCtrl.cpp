@@ -13,6 +13,7 @@ TabCtrl::TabCtrl()
 	m_tabPages[1] = new MedianFilterDlg;
 
 	m_nNumberOfPages = 2;
+
 }
 
 TabCtrl::~TabCtrl()
@@ -29,11 +30,11 @@ void TabCtrl::Init()
 {
 	m_tabCurrent = 0;
 
-	m_tabPages[0]->Create(IDD_NOISE, this);
-	m_tabPages[1]->Create(IDD_MEDIAN_FILTER, this);
+	(m_tabPages[0])->Create(IDD_NOISE, this);
+	(m_tabPages[1])->Create(IDD_MEDIAN_FILTER, this);
 
-	m_tabPages[0]->ShowWindow(SW_SHOW);
-	m_tabPages[1]->ShowWindow(SW_HIDE);
+	(m_tabPages[0])->ShowWindow(SW_SHOW);
+	(m_tabPages[1])->ShowWindow(SW_HIDE);
 
 	SetRectangle();
 }
@@ -51,9 +52,9 @@ void TabCtrl::SetRectangle()
 	nXc = tabRect.right - itemRect.left - 1;
 	nYc = tabRect.bottom - nY - 1;
 
-	m_tabPages[0]->SetWindowPos(&wndTop, nX, nY, nXc, nYc, SWP_SHOWWINDOW);
+	(m_tabPages[0])->SetWindowPos(&wndTop, nX, nY, nXc, nYc, SWP_SHOWWINDOW);
 	for (int nCount = 1; nCount < m_nNumberOfPages; nCount++)
-		m_tabPages[nCount]->SetWindowPos(&wndTop, nX, nY, nXc, nYc, SWP_HIDEWINDOW);
+		(m_tabPages[nCount])->SetWindowPos(&wndTop, nX, nY, nXc, nYc, SWP_HIDEWINDOW);
 }
 
 
@@ -64,9 +65,9 @@ void TabCtrl::OnLButtonDown(UINT nFlags, CPoint point)
 	CTabCtrl::OnLButtonDown(nFlags, point);
 
 	if (m_tabCurrent != GetCurFocus()) {
-		m_tabPages[m_tabCurrent]->ShowWindow(SW_HIDE);
+		(m_tabPages[m_tabCurrent])->ShowWindow(SW_HIDE);
 		m_tabCurrent = GetCurFocus();
-		m_tabPages[m_tabCurrent]->ShowWindow(SW_SHOW);
-		m_tabPages[m_tabCurrent]->SetFocus();
+		(m_tabPages[m_tabCurrent])->ShowWindow(SW_SHOW);
+		(m_tabPages[m_tabCurrent])->SetFocus();
 	}
 }

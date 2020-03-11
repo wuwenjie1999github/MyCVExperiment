@@ -21,7 +21,7 @@ public:
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
-
+	static UINT Update(void* p);
 
 // 实现
 protected:

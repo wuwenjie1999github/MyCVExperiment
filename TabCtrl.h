@@ -1,5 +1,6 @@
 #pragma once
 #include <afxcmn.h>
+#include "ImageProcess.h"
 class TabCtrl :
 	public CTabCtrl
 {
@@ -13,7 +14,8 @@ public:
 
 
 	
-	CDialog* m_tabPages[2];
+	CDialogEx* m_tabPages[2];
+
 	int m_tabCurrent;
 	int m_nNumberOfPages;
 protected:

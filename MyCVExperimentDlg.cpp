@@ -7,6 +7,7 @@
 #include "MyCVExperiment.h"
 #include "MyCVExperimentDlg.h"
 #include "afxdialogex.h"
+#include "ImageProcess.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -62,6 +63,7 @@ void CMyCVExperimentDlg::DoDataExchange(CDataExchange* pDX)
 
 	DDX_Control(pDX, IDC_TAB, m_tabCtrl);
 }
+
 
 BEGIN_MESSAGE_MAP(CMyCVExperimentDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()

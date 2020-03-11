@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ImageProcess.h"
 #include <vector>
 #include <algorithm>
@@ -43,6 +44,10 @@ static bool GetValue(int p[], int size, int &value)
 
 }
 
+
+ImageProcess::ImageProcess()
+{
+}
 
 UINT ImageProcess::medianFilter(LPVOID  p)
 {

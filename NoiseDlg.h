@@ -1,5 +1,5 @@
 ﻿#pragma once
-
+#include "ImageProcess.h"
 
 // NoiseDlg 对话框
 
@@ -19,7 +19,13 @@ public:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
+	CImage* m_pImgSrc;
+	CImage* m_pProcessedImg;
+	CStatic mOriginalPictureControl, mProcessedPictureControl;
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedButtonOpenOriginal();
+	UINT Update(void* p);
+	afx_msg void OnPaint();
+	
 };
