@@ -8,6 +8,7 @@
 #include "MyCVExperimentDlg.h"
 #include "afxdialogex.h"
 #include "ImageProcess.h"
+#include "stdafx.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -163,6 +164,8 @@ HCURSOR CMyCVExperimentDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
+
+
 
 
 

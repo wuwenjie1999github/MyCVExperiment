@@ -6,6 +6,7 @@
 #include "NoiseDlg.h"
 #include "afxdialogex.h"
 #include "TabCtrl.h"
+#include "stdafx.h"
 
 
 // NoiseDlg 对话框
@@ -17,6 +18,9 @@ NoiseDlg::NoiseDlg(CWnd* pParent /*=nullptr*/)
 {
 	m_pImgSrc = NULL;
 	m_pProcessedImg = NULL;
+	m_nThreadNum = 1;
+	m_pThreadParam = new ThreadParam[MAX_THREAD];
+	srand(time(0));
 }
 
 NoiseDlg::~NoiseDlg()
@@ -28,12 +32,32 @@ void NoiseDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_ORI_PIC, mOriginalPictureControl);
 	DDX_Control(pDX, IDC_PROCESS_PIC, mProcessedPictureControl);
+	DDX_Control(pDX, IDC_CHECK_LOOP, m_CheckLoop);
+}
+
+BOOL NoiseDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+
+	// TODO: 在此添加额外的初始化代码
+	CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_PROCESS_METHOD));
+	cmb_thread->InsertString(0, _T("WIN多线程"));
+	cmb_thread->InsertString(1, _T("OpenMP"));
+	cmb_thread->InsertString(2, _T("CUDA"));
+	cmb_thread->SetCurSel(0);
+
+	AfxBeginThread((AFX_THREADPROC)&NoiseDlg::Update, this);
+
+	return TRUE;
 }
 
 
 BEGIN_MESSAGE_MAP(NoiseDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_BN_CLICKED(IDC_BUTTON_OPEN_ORIGINAL, &NoiseDlg::OnBnClickedButtonOpenOriginal)
+	ON_BN_CLICKED(IDC_BUTTON_PROCESS, &NoiseDlg::OnBnClickedButtonProcess)
+	ON_MESSAGE(WM_NOISE, &NoiseDlg::OnNoiseThreadMsgReceived)
 END_MESSAGE_MAP()
 
 
@@ -43,7 +67,7 @@ END_MESSAGE_MAP()
 void NoiseDlg::OnBnClickedButtonOpenOriginal()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	TCHAR szFilter[] = _T("JPEG(*jpg)|*.jpg|*.bmp|*.png|TIFF(*.tif)|*.tif|All Files （*.*）|*.*||");
+	TCHAR szFilter[] = _T("JPEG(*jpg)||*.jpg||*.bmp||*.png||TIFF(*.tif)||*.tif||All Files （*.*）||*.*||");
 	CString filePath("");
 
 	CFileDialog fileOpenDialog(TRUE, NULL, NULL, OFN_HIDEREADONLY, szFilter);
@@ -194,4 +218,119 @@ void NoiseDlg::OnPaint()
 		}
 		ReleaseDC(pDC);
 	}
+}
+
+
+void NoiseDlg::OnBnClickedButtonProcess()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_PROCESS_METHOD));
+	int thread = cmb_thread->GetCurSel();
+	CButton* clb_loop = ((CButton*)GetDlgItem(IDC_CHECK_LOOP));
+	int loop = clb_loop->GetCheck() == 0 ? 1 : 100;
+	startTime = CTime::GetTickCount();
+	switch (thread)
+	{
+	case 0:	// WIN多线程
+		if (m_pImgSrc != NULL) {
+			m_pProcessedImg = new CImage();
+			ImageCopy(m_pImgSrc, m_pProcessedImg);
+			this->Invalidate();
+			AddNoise_WIN();
+		}
+		else {
+			CString warning("请先打开要处理的图片。");
+			AfxMessageBox(warning);
+		}
+		break;
+	case 1:	// openmp
+	{
+		int subLength = m_pImgSrc->GetWidth() * m_pImgSrc->GetHeight() / m_nThreadNum;
+
+	#pragma omp parallel for num_threads(m_nThreadNum)
+		for (int i = 0; i < m_nThreadNum; ++i)
+		{
+			m_pThreadParam[i].startIndex = i * subLength;
+			m_pThreadParam[i].endIndex = i != m_nThreadNum - 1 ?
+				(i + 1) * subLength - 1 : m_pImgSrc->GetWidth() * m_pImgSrc->GetHeight() - 1;
+			m_pThreadParam[i].src = m_pImgSrc;
+			ImageProcess::addNoise(&m_pThreadParam[i]);
+		}
+	}
+	break;
+	case 2:	// cuda
+		break;
+	default:
+		break;
+	}
+}
+
+void NoiseDlg::AddNoise_WIN()
+{
+	int subLength = m_pProcessedImg->GetWidth() * m_pProcessedImg->GetHeight() / m_nThreadNum;
+	for (int i = 0; i < m_nThreadNum; ++i)
+	{
+		m_pThreadParam[i].startIndex = i * subLength;
+		m_pThreadParam[i].endIndex = i != m_nThreadNum - 1 ?
+			(i + 1) * subLength - 1 : m_pProcessedImg->GetWidth() * m_pProcessedImg->GetHeight() - 1;
+		m_pThreadParam[i].src = m_pProcessedImg;
+		AfxBeginThread((AFX_THREADPROC)&ImageProcess::addNoise, &m_pThreadParam[i]);
+	}
+}
+
+void NoiseDlg::ImageCopy(CImage* pImgSrc, CImage* pImgDrt)
+{
+	int MaxColors = pImgSrc->GetMaxColorTableEntries();
+	RGBQUAD* ColorTab;
+	ColorTab = new RGBQUAD[MaxColors];
+
+	CDC* pDCsrc, * pDCdrc;
+	if (!pImgDrt->IsNull())
+	{
+		pImgDrt->Destroy();
+	}
+	pImgDrt->Create(pImgSrc->GetWidth(), pImgSrc->GetHeight(), pImgSrc->GetBPP(), 0);
+
+	if (pImgSrc->IsIndexed())
+	{
+		pImgSrc->GetColorTable(0, MaxColors, ColorTab);
+		pImgDrt->SetColorTable(0, MaxColors, ColorTab);
+	}
+
+	pDCsrc = CDC::FromHandle(pImgSrc->GetDC());
+	pDCdrc = CDC::FromHandle(pImgDrt->GetDC());
+	pDCdrc->BitBlt(0, 0, pImgSrc->GetWidth(), pImgSrc->GetHeight(), pDCsrc, 0, 0, SRCCOPY);
+	pImgSrc->ReleaseDC();
+	pImgDrt->ReleaseDC();
+	delete ColorTab;
+}
+
+LRESULT NoiseDlg::OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam)
+{
+	static int tempCount = 0;
+	static int tempProcessCount = 0;
+	CButton* clb_circulation = ((CButton*)GetDlgItem(IDC_CHECK_LOOP));
+	int circulation = clb_circulation->GetCheck() == 0 ? 1 : 100;
+	if ((int)wParam == 1)
+		tempCount++;
+	if (m_nThreadNum == tempCount)
+	{
+		//CTime endTime = CTime::GetTickCount();
+		//CString timeStr;
+		//timeStr.Format(_T("耗时:%dms", endTime - startTime));
+		tempCount = 0;
+		tempProcessCount++;
+		if (tempProcessCount < circulation)
+			AddNoise_WIN();
+		else
+		{
+			tempProcessCount = 0;
+			CTime endTime = CTime::GetTickCount();
+			CString timeStr;
+			timeStr.Format(_T("处理%d次,耗时:%dms"), circulation, endTime - startTime);
+			AfxMessageBox(timeStr);
+		}
+		//	AfxMessageBox(timeStr);
+	}
+	return 0;
 }
