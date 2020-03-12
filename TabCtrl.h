@@ -1,6 +1,8 @@
 #pragma once
 #include <afxcmn.h>
 #include "ImageProcess.h"
+#include "NoiseDlg.h"
+#include "MedianFilterDlg.h"
 class TabCtrl :
 	public CTabCtrl
 {
@@ -14,7 +16,9 @@ public:
 
 
 	
-	CDialogEx* m_tabPages[2];
+	//CDialogEx* m_tabPages[2];
+	NoiseDlg* noiseDlg;
+	MedianFilterDlg* medianFilterDlg;
 
 	int m_tabCurrent;
 	int m_nNumberOfPages;
