@@ -9,6 +9,8 @@
 #include "afxdialogex.h"
 #include "ImageProcess.h"
 #include "stdafx.h"
+#include "NoiseDlg.h"
+#include "MedianFilterDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,6 +18,7 @@
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
+
 
 class CAboutDlg : public CDialogEx
 {
@@ -65,11 +68,19 @@ void CMyCVExperimentDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TAB, m_tabCtrl);
 }
 
+LRESULT CMyCVExperimentDlg::OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam)
+{
+	m_tabCtrl.noiseDlg->OnNoiseThreadMsgReceived(wParam, lParam);
+	return 0;
+}
+
+
 
 BEGIN_MESSAGE_MAP(CMyCVExperimentDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_MESSAGE(WM_NOISE, &CMyCVExperimentDlg::OnNoiseThreadMsgReceived)
 //	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB, &CMyCVExperimentDlg::OnTcnSelchangeTab)
 //ON_WM_LBUTTONDOWN()
 //ON_WM_LBUTTONDOWN()
