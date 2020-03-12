@@ -23,7 +23,7 @@ protected:
 	virtual BOOL OnInitDialog();
 	void AddNoise_WIN();
 	void ImageCopy(CImage* pImgSrc, CImage* pImgDrt);
-	afx_msg LRESULT OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam);
+	
 
 	CImage* m_pImgSrc;
 	CImage* m_pProcessedImg;
@@ -31,6 +31,7 @@ protected:
 	CTime startTime;
 	int m_nThreadNum;
 	ThreadParam* m_pThreadParam;
+	//CButton* clb_circulation;
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedButtonOpenOriginal();
@@ -38,5 +39,6 @@ public:
 	afx_msg void OnPaint();
 	
 	afx_msg void OnBnClickedButtonProcess();
+	afx_msg LRESULT OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam);
 	CButton m_CheckLoop;
 };

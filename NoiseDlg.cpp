@@ -5,7 +5,6 @@
 #include "MyCVExperiment.h"
 #include "NoiseDlg.h"
 #include "afxdialogex.h"
-#include "TabCtrl.h"
 #include "stdafx.h"
 
 
@@ -39,8 +38,8 @@ BOOL NoiseDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-
 	// TODO: 在此添加额外的初始化代码
+
 	CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_PROCESS_METHOD));
 	cmb_thread->InsertString(0, _T("WIN多线程"));
 	cmb_thread->InsertString(1, _T("OpenMP"));
@@ -57,7 +56,6 @@ BEGIN_MESSAGE_MAP(NoiseDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_BN_CLICKED(IDC_BUTTON_OPEN_ORIGINAL, &NoiseDlg::OnBnClickedButtonOpenOriginal)
 	ON_BN_CLICKED(IDC_BUTTON_PROCESS, &NoiseDlg::OnBnClickedButtonProcess)
-	ON_MESSAGE(WM_NOISE, &NoiseDlg::OnNoiseThreadMsgReceived)
 END_MESSAGE_MAP()
 
 
@@ -224,45 +222,48 @@ void NoiseDlg::OnPaint()
 void NoiseDlg::OnBnClickedButtonProcess()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_PROCESS_METHOD));
-	int thread = cmb_thread->GetCurSel();
-	CButton* clb_loop = ((CButton*)GetDlgItem(IDC_CHECK_LOOP));
-	int loop = clb_loop->GetCheck() == 0 ? 1 : 100;
-	startTime = CTime::GetTickCount();
-	switch (thread)
-	{
-	case 0:	// WIN多线程
-		if (m_pImgSrc != NULL) {
+	if (m_pImgSrc != NULL) {
+		CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_PROCESS_METHOD));
+		int thread = cmb_thread->GetCurSel();
+		CButton* clb_loop = ((CButton*)GetDlgItem(IDC_CHECK_LOOP));
+		int loop = clb_loop->GetCheck() == 0 ? 1 : 100;
+		startTime = CTime::GetTickCount();
+		switch (thread)
+		{
+		case 0:	// WIN多线程
 			m_pProcessedImg = new CImage();
 			ImageCopy(m_pImgSrc, m_pProcessedImg);
 			this->Invalidate();
 			AddNoise_WIN();
-		}
-		else {
-			CString warning("请先打开要处理的图片。");
-			AfxMessageBox(warning);
-		}
-		break;
-	case 1:	// openmp
-	{
-		int subLength = m_pImgSrc->GetWidth() * m_pImgSrc->GetHeight() / m_nThreadNum;
 
-	#pragma omp parallel for num_threads(m_nThreadNum)
-		for (int i = 0; i < m_nThreadNum; ++i)
+
+			break;
+		case 1:	// openmp
 		{
-			m_pThreadParam[i].startIndex = i * subLength;
-			m_pThreadParam[i].endIndex = i != m_nThreadNum - 1 ?
-				(i + 1) * subLength - 1 : m_pImgSrc->GetWidth() * m_pImgSrc->GetHeight() - 1;
-			m_pThreadParam[i].src = m_pImgSrc;
-			ImageProcess::addNoise(&m_pThreadParam[i]);
+			int subLength = m_pImgSrc->GetWidth() * m_pImgSrc->GetHeight() / m_nThreadNum;
+
+#pragma omp parallel for num_threads(m_nThreadNum)
+			for (int i = 0; i < m_nThreadNum; ++i)
+			{
+				m_pThreadParam[i].startIndex = i * subLength;
+				m_pThreadParam[i].endIndex = i != m_nThreadNum - 1 ?
+					(i + 1) * subLength - 1 : m_pImgSrc->GetWidth() * m_pImgSrc->GetHeight() - 1;
+				m_pThreadParam[i].src = m_pImgSrc;
+				ImageProcess::addNoise(&m_pThreadParam[i]);
+			}
+		}
+		break;
+		case 2:	// cuda
+			break;
+		default:
+			break;
 		}
 	}
-	break;
-	case 2:	// cuda
-		break;
-	default:
-		break;
+	else {
+		CString warning("请先打开要处理的图片。");
+		AfxMessageBox(warning);
 	}
+
 }
 
 void NoiseDlg::AddNoise_WIN()
@@ -276,6 +277,7 @@ void NoiseDlg::AddNoise_WIN()
 		m_pThreadParam[i].src = m_pProcessedImg;
 		AfxBeginThread((AFX_THREADPROC)&ImageProcess::addNoise, &m_pThreadParam[i]);
 	}
+	
 }
 
 void NoiseDlg::ImageCopy(CImage* pImgSrc, CImage* pImgDrt)
@@ -304,6 +306,7 @@ void NoiseDlg::ImageCopy(CImage* pImgSrc, CImage* pImgDrt)
 	pImgDrt->ReleaseDC();
 	delete ColorTab;
 }
+
 
 LRESULT NoiseDlg::OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam)
 {
