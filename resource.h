@@ -38,8 +38,10 @@
 #define IDC_MEDIAN_OUTPUT               1028
 #define IDC_MEDIAN_SLIDER_LOOP_TIME     1029
 #define IDC_MEDIAN_LOOP_TEXT            1030
-#define IDC_LOOP_TIME_TEXT              1031
 #define IDC_MEDIAN_LOOP_TIME_TEXT       1031
+#define IDC_NOISE_BUTTON_CLEAR_OUTPUT   1032
+#define IDC_BUTTON1                     1033
+#define IDC_MEDIAN_BUTTON_CLEAR_OUTPUT  1033
 
 // Next default values for new objects
 // 
@@ -47,7 +49,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1032
+#define _APS_NEXT_CONTROL_VALUE         1034
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

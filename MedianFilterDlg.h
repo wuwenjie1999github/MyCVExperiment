@@ -50,4 +50,5 @@ public:
 	CSliderCtrl m_SliderLoop;
 	CStatic m_LoopNum;
 	afx_msg void OnNMCustomdrawMedianSliderLoopTime(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBnClickedMedianButtonClearOutput();
 };

@@ -46,4 +46,5 @@ public:
 	afx_msg void OnBnClickedButtonSave();
 	afx_msg void OnNMCustomdrawSlider1(NMHDR* pNMHDR, LRESULT* pResult);
 	CStatic m_loopCountText;
+	afx_msg void OnBnClickedButtonClearOutput();
 };

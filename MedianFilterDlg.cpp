@@ -235,6 +235,7 @@ BEGIN_MESSAGE_MAP(MedianFilterDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_MEDIAN_BUTTON_SAVE, &MedianFilterDlg::OnBnClickedMedianButtonSave)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_MEDIAN_SLIDER_THREAD_NUM, &MedianFilterDlg::OnNMCustomdrawMedianSliderThreadNum)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_MEDIAN_SLIDER_LOOP_TIME, &MedianFilterDlg::OnNMCustomdrawMedianSliderLoopTime)
+	ON_BN_CLICKED(IDC_MEDIAN_BUTTON_CLEAR_OUTPUT, &MedianFilterDlg::OnBnClickedMedianButtonClearOutput)
 END_MESSAGE_MAP()
 
 
@@ -443,4 +444,12 @@ void MedianFilterDlg::OnNMCustomdrawMedianSliderLoopTime(NMHDR* pNMHDR, LRESULT*
 	text.Format(_T("%d"), loopTime);
 	GetDlgItem(IDC_MEDIAN_LOOP_TIME_TEXT)->SetWindowText(text);
 	*pResult = 0;
+}
+
+
+void MedianFilterDlg::OnBnClickedMedianButtonClearOutput()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	outputStr = "";
+	m_Output.SetWindowTextW(outputStr);
 }

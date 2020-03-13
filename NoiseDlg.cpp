@@ -68,6 +68,7 @@ BEGIN_MESSAGE_MAP(NoiseDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_NOISE_BUTTON_PROCESS, &NoiseDlg::OnBnClickedButtonProcess)
 	ON_BN_CLICKED(IDC_NOISE_BUTTON_SAVE, &NoiseDlg::OnBnClickedButtonSave)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_NOISE_SLIDER_THREAD_NUM, &NoiseDlg::OnNMCustomdrawSlider1)
+	ON_BN_CLICKED(IDC_NOISE_BUTTON_CLEAR_OUTPUT, &NoiseDlg::OnBnClickedButtonClearOutput)
 END_MESSAGE_MAP()
 
 
@@ -429,4 +430,12 @@ void NoiseDlg::OnNMCustomdrawSlider1(NMHDR* pNMHDR, LRESULT* pResult)
 	text.Format(_T("%d"), m_nThreadNum);
 	GetDlgItem(IDC_NOISE_THREAD_NUM)->SetWindowText(text);
 	*pResult = 0;
+}
+
+
+void NoiseDlg::OnBnClickedButtonClearOutput()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	outputStr = "";
+	m_Output.SetWindowTextW(outputStr);
 }
