@@ -44,4 +44,6 @@ public:
 	CEdit m_Output;
 	CString outputStr;
 	afx_msg void OnBnClickedButtonSave();
+	afx_msg void OnNMCustomdrawSlider1(NMHDR* pNMHDR, LRESULT* pResult);
+	CStatic m_loopCountText;
 };

@@ -74,6 +74,12 @@ LRESULT CMyCVExperimentDlg::OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lPara
 	return 0;
 }
 
+LRESULT CMyCVExperimentDlg::OnMedianThreadMsgReceived(WPARAM wParam, LPARAM lParam)
+{
+	m_tabCtrl.medianFilterDlg->OnMedianThreadMsgReceived(wParam, lParam);
+	return 0;
+}
+
 
 
 BEGIN_MESSAGE_MAP(CMyCVExperimentDlg, CDialogEx)
@@ -81,6 +87,7 @@ BEGIN_MESSAGE_MAP(CMyCVExperimentDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_MESSAGE(WM_NOISE, &CMyCVExperimentDlg::OnNoiseThreadMsgReceived)
+	ON_MESSAGE(WM_MEDIAN_FILTER, &CMyCVExperimentDlg::OnMedianThreadMsgReceived)
 //	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB, &CMyCVExperimentDlg::OnTcnSelchangeTab)
 //ON_WM_LBUTTONDOWN()
 //ON_WM_LBUTTONDOWN()
@@ -183,20 +190,20 @@ HCURSOR CMyCVExperimentDlg::OnQueryDragIcon()
 
 
 
-void CMyCVExperimentDlg::OnSize(UINT nType, int cx, int cy)
-{
-	CDialogEx::OnSize(nType, cx, cy);
-
-	// TODO: 在此处添加消息处理程序代码
-	if (SIZE_MINIMIZED == nType)    //防止最小化时程序崩溃
-		return;
-
-	/*CRect rectDlg;
-	GetWindowRect(&rectDlg);
-	int height = rectDlg.Height();
-	int width = rectDlg.Width();
-	CRect rect = CRect(rectDlg.TopLeft(), CSize(width, height));
-	CWnd* tabWnd = GetDlgItem(IDC_TAB);
-	if (tabWnd != NULL)
-		tabWnd->SetWindowPos()*/
-}
+//void CMyCVExperimentDlg::OnSize(UINT nType, int cx, int cy)
+//{
+//	CDialogEx::OnSize(nType, cx, cy);
+//
+//	// TODO: 在此处添加消息处理程序代码
+//	if (SIZE_MINIMIZED == nType)    //防止最小化时程序崩溃
+//		return;
+//
+//	CRect rectDlg;
+//	GetWindowRect(&rectDlg);
+//	int height = rectDlg.Height();
+//	int width = rectDlg.Width();
+//	CRect rect = CRect(rectDlg.TopLeft(), CSize(width, height));
+//	CWnd* tabWnd = GetDlgItem(IDC_TAB);
+//	if (tabWnd != NULL)
+//		tabWnd->SetWindowPos()
+//}

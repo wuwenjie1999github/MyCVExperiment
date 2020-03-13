@@ -31,10 +31,11 @@ NoiseDlg::~NoiseDlg()
 void NoiseDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_ORI_PIC, mOriginalPictureControl);
-	DDX_Control(pDX, IDC_PROCESS_PIC, mProcessedPictureControl);
-	DDX_Control(pDX, IDC_CHECK_LOOP, m_CheckLoop);
-	DDX_Control(pDX, IDC_OUTPUT, m_Output);
+	DDX_Control(pDX, IDC_NOISE_ORI_PIC, mOriginalPictureControl);
+	DDX_Control(pDX, IDC_NOISE_PROCESS_PIC, mProcessedPictureControl);
+	DDX_Control(pDX, IDC_NOISE_CHECK_LOOP, m_CheckLoop);
+	DDX_Control(pDX, IDC_NOISE_OUTPUT, m_Output);
+	DDX_Control(pDX, IDC_NOISE_LOOP_COUNT_TEXT, m_loopCountText);
 }
 
 BOOL NoiseDlg::OnInitDialog()
@@ -43,11 +44,15 @@ BOOL NoiseDlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 
-	CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_PROCESS_METHOD));
+	CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_NOISE_PROCESS_METHOD));
 	cmb_thread->InsertString(0, _T("WIN多线程"));
 	cmb_thread->InsertString(1, _T("OpenMP"));
 	cmb_thread->InsertString(2, _T("CUDA"));
 	cmb_thread->SetCurSel(0);
+
+	CSliderCtrl* slider = ((CSliderCtrl*)GetDlgItem(IDC_NOISE_SLIDER_THREAD_NUM));
+	slider->SetRange(1, MAX_THREAD, TRUE);
+	slider->SetPos(MAX_THREAD);
 
 	AfxBeginThread((AFX_THREADPROC)&NoiseDlg::Update, this);
 
@@ -59,9 +64,10 @@ BOOL NoiseDlg::OnInitDialog()
 
 BEGIN_MESSAGE_MAP(NoiseDlg, CDialogEx)
 	ON_WM_PAINT()
-	ON_BN_CLICKED(IDC_BUTTON_OPEN_ORIGINAL, &NoiseDlg::OnBnClickedButtonOpenOriginal)
-	ON_BN_CLICKED(IDC_BUTTON_PROCESS, &NoiseDlg::OnBnClickedButtonProcess)
-	ON_BN_CLICKED(IDC_BUTTON_SAVE, &NoiseDlg::OnBnClickedButtonSave)
+	ON_BN_CLICKED(IDC_NOISE_BUTTON_OPEN_ORIGINAL, &NoiseDlg::OnBnClickedButtonOpenOriginal)
+	ON_BN_CLICKED(IDC_NOISE_BUTTON_PROCESS, &NoiseDlg::OnBnClickedButtonProcess)
+	ON_BN_CLICKED(IDC_NOISE_BUTTON_SAVE, &NoiseDlg::OnBnClickedButtonSave)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_NOISE_SLIDER_THREAD_NUM, &NoiseDlg::OnNMCustomdrawSlider1)
 END_MESSAGE_MAP()
 
 
@@ -229,9 +235,9 @@ void NoiseDlg::OnBnClickedButtonProcess()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	if (m_pImgSrc != NULL) {
-		CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_PROCESS_METHOD));
+		CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_NOISE_PROCESS_METHOD));
 		int thread = cmb_thread->GetCurSel();
-		CButton* clb_loop = ((CButton*)GetDlgItem(IDC_CHECK_LOOP));
+		CButton* clb_loop = ((CButton*)GetDlgItem(IDC_NOISE_CHECK_LOOP));
 		int loop = clb_loop->GetCheck() == 0 ? 1 : 100;
 		startTime = CTime::GetTickCount();
 		switch (thread)
@@ -257,6 +263,7 @@ void NoiseDlg::OnBnClickedButtonProcess()
 				m_pThreadParam[i].startIndex = i * subLength;
 				m_pThreadParam[i].endIndex = i != m_nThreadNum - 1 ?
 					(i + 1) * subLength - 1 : m_pProcessedImg->GetWidth() * m_pProcessedImg->GetHeight() - 1;
+				m_pThreadParam[i].maxSpan = MAX_SPAN;
 				m_pThreadParam[i].src = m_pProcessedImg;
 				ImageProcess::addNoise(&m_pThreadParam[i]);
 			}
@@ -321,7 +328,7 @@ LRESULT NoiseDlg::OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam)
 {
 	static int tempCount = 0;
 	static int tempProcessCount = 0;
-	CButton* clb_circulation = ((CButton*)GetDlgItem(IDC_CHECK_LOOP));
+	CButton* clb_circulation = ((CButton*)GetDlgItem(IDC_NOISE_CHECK_LOOP));
 	int circulation = clb_circulation->GetCheck() == 0 ? 1 : 100;
 	if ((int)wParam == 1)
 		tempCount++;
@@ -341,16 +348,11 @@ LRESULT NoiseDlg::OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam)
 		tempCount = 0;
 		tempProcessCount++;
 		
-		if ((tempProcessCount - 1) % 10 == 0) {
+//		if ((tempProcessCount - 1) % 10 == 0) {
 			CString processStr;
-			processStr.Format(_T("第%d次循环。\r\n"), tempProcessCount);
-			outputStr.Append(processStr);
-			m_Output.SetWindowTextW(outputStr);
-			int lines = m_Output.GetLineCount();
-			int counts = outputStr.GetLength();
-			m_Output.LineScroll(lines, 0);
-			m_Output.SetSel(counts, counts);
-		}
+			processStr.Format(_T("已完成第%d次处理"), tempProcessCount);
+			m_loopCountText.SetWindowTextW(processStr);
+//		}
 
 		if (tempProcessCount < circulation)
 			AddNoise_WIN();
@@ -414,4 +416,17 @@ void NoiseDlg::OnBnClickedButtonSave()
 		m_pProcessedImg->Save(filePath);
 	}
 	
+}
+
+
+void NoiseDlg::OnNMCustomdrawSlider1(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	CSliderCtrl* slider = (CSliderCtrl*)GetDlgItem(IDC_NOISE_SLIDER_THREAD_NUM);
+	CString text("");
+	m_nThreadNum = slider->GetPos();
+	text.Format(_T("%d"), m_nThreadNum);
+	GetDlgItem(IDC_NOISE_THREAD_NUM)->SetWindowText(text);
+	*pResult = 0;
 }
