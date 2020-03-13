@@ -41,4 +41,7 @@ public:
 	afx_msg void OnBnClickedButtonProcess();
 	afx_msg LRESULT OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam);
 	CButton m_CheckLoop;
+	CEdit m_Output;
+	CString outputStr;
+	afx_msg void OnBnClickedButtonSave();
 };

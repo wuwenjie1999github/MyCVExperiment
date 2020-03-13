@@ -8,6 +8,7 @@
 #include "stdafx.h"
 
 
+
 // NoiseDlg 对话框
 
 IMPLEMENT_DYNAMIC(NoiseDlg, CDialogEx)
@@ -19,6 +20,7 @@ NoiseDlg::NoiseDlg(CWnd* pParent /*=nullptr*/)
 	m_pProcessedImg = NULL;
 	m_nThreadNum = 1;
 	m_pThreadParam = new ThreadParam[MAX_THREAD];
+	outputStr = "";
 	srand(time(0));
 }
 
@@ -32,6 +34,7 @@ void NoiseDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ORI_PIC, mOriginalPictureControl);
 	DDX_Control(pDX, IDC_PROCESS_PIC, mProcessedPictureControl);
 	DDX_Control(pDX, IDC_CHECK_LOOP, m_CheckLoop);
+	DDX_Control(pDX, IDC_OUTPUT, m_Output);
 }
 
 BOOL NoiseDlg::OnInitDialog()
@@ -48,6 +51,8 @@ BOOL NoiseDlg::OnInitDialog()
 
 	AfxBeginThread((AFX_THREADPROC)&NoiseDlg::Update, this);
 
+	m_Output.SetReadOnly(TRUE);
+
 	return TRUE;
 }
 
@@ -56,6 +61,7 @@ BEGIN_MESSAGE_MAP(NoiseDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_BN_CLICKED(IDC_BUTTON_OPEN_ORIGINAL, &NoiseDlg::OnBnClickedButtonOpenOriginal)
 	ON_BN_CLICKED(IDC_BUTTON_PROCESS, &NoiseDlg::OnBnClickedButtonProcess)
+	ON_BN_CLICKED(IDC_BUTTON_SAVE, &NoiseDlg::OnBnClickedButtonSave)
 END_MESSAGE_MAP()
 
 
@@ -240,15 +246,18 @@ void NoiseDlg::OnBnClickedButtonProcess()
 			break;
 		case 1:	// openmp
 		{
-			int subLength = m_pImgSrc->GetWidth() * m_pImgSrc->GetHeight() / m_nThreadNum;
+			m_pProcessedImg = new CImage();
+			ImageCopy(m_pImgSrc, m_pProcessedImg);
+			this->Invalidate();
+			int subLength = m_pProcessedImg->GetWidth() * m_pProcessedImg->GetHeight() / m_nThreadNum;
 
 #pragma omp parallel for num_threads(m_nThreadNum)
 			for (int i = 0; i < m_nThreadNum; ++i)
 			{
 				m_pThreadParam[i].startIndex = i * subLength;
 				m_pThreadParam[i].endIndex = i != m_nThreadNum - 1 ?
-					(i + 1) * subLength - 1 : m_pImgSrc->GetWidth() * m_pImgSrc->GetHeight() - 1;
-				m_pThreadParam[i].src = m_pImgSrc;
+					(i + 1) * subLength - 1 : m_pProcessedImg->GetWidth() * m_pProcessedImg->GetHeight() - 1;
+				m_pThreadParam[i].src = m_pProcessedImg;
 				ImageProcess::addNoise(&m_pThreadParam[i]);
 			}
 		}
@@ -316,6 +325,14 @@ LRESULT NoiseDlg::OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam)
 	int circulation = clb_circulation->GetCheck() == 0 ? 1 : 100;
 	if ((int)wParam == 1)
 		tempCount++;
+	CString threadStr;
+	threadStr.Format(_T("线程%d退出。\r\n"), tempCount);
+	outputStr.Append(threadStr);
+	m_Output.SetWindowTextW(outputStr);
+	int lines = m_Output.GetLineCount();
+	int counts = outputStr.GetLength();
+	m_Output.LineScroll(lines, 0);
+	m_Output.SetSel(counts, counts);
 	if (m_nThreadNum == tempCount)
 	{
 		//CTime endTime = CTime::GetTickCount();
@@ -323,6 +340,18 @@ LRESULT NoiseDlg::OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam)
 		//timeStr.Format(_T("耗时:%dms", endTime - startTime));
 		tempCount = 0;
 		tempProcessCount++;
+		
+		if ((tempProcessCount - 1) % 10 == 0) {
+			CString processStr;
+			processStr.Format(_T("第%d次循环。\r\n"), tempProcessCount);
+			outputStr.Append(processStr);
+			m_Output.SetWindowTextW(outputStr);
+			int lines = m_Output.GetLineCount();
+			int counts = outputStr.GetLength();
+			m_Output.LineScroll(lines, 0);
+			m_Output.SetSel(counts, counts);
+		}
+
 		if (tempProcessCount < circulation)
 			AddNoise_WIN();
 		else
@@ -330,10 +359,59 @@ LRESULT NoiseDlg::OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam)
 			tempProcessCount = 0;
 			CTime endTime = CTime::GetTickCount();
 			CString timeStr;
-			timeStr.Format(_T("处理%d次,耗时:%dms"), circulation, endTime - startTime);
-			AfxMessageBox(timeStr);
+			timeStr.Format(_T("处理%d次,耗时:%dms\r\n==============\r\n"), circulation, endTime - startTime);
+			//AfxMessageBox(timeStr);
+			outputStr.Append(timeStr);
+			m_Output.SetWindowTextW(outputStr);
+			int lines = m_Output.GetLineCount();
+			int counts = outputStr.GetLength();
+			m_Output.LineScroll(lines, 0);
+			m_Output.SetSel(counts, counts);
 		}
 		//	AfxMessageBox(timeStr);
 	}
 	return 0;
+}
+
+
+void NoiseDlg::OnBnClickedButtonSave()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (m_pProcessedImg == NULL) {
+		CString warning(_T("不能保存空图片。"));
+		AfxMessageBox(warning);
+		return;
+	}
+	TCHAR szFilter[] = _T("JPEG(*jpg)||*.jpg||*.bmp||*.png||TIFF(*.tif)||*.tif||All Files （*.*）||*.*||");
+	CString filePath, fileExtension, picName;
+	//CString picName(_T("Processed_Picture"));
+	CFileDialog fileDlg(FALSE, _T(""), _T("Processed_Picture"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter, this);
+	picName = fileDlg.m_ofn.lpstrFile;
+	if (IDOK == fileDlg.DoModal()) {
+		filePath = fileDlg.GetPathName();
+//		if (fileDlg.m_ofn.nFileExtension == NULL) {
+			switch (fileDlg.m_ofn.nFilterIndex)
+			{
+			case 1:
+			case 2:
+				fileExtension = "jpg";
+				break;
+			case 3:
+				fileExtension = "bmp";
+				break;
+			case 4:
+				fileExtension = "png";
+				break;
+			case 5:
+			case 6:
+				fileExtension = "tif";
+				break;
+			default:
+				break;
+			}
+//		}
+		filePath = filePath + "." + fileExtension;
+		m_pProcessedImg->Save(filePath);
+	}
+	
 }
