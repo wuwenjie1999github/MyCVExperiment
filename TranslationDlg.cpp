@@ -288,8 +288,8 @@ void TranslationDlg::OnBnClickedTranButtonRotate()
 			int direc = rotateDirec->GetCurSel();
 			rotateAngle = direc == 0 ? rotateAngle + degree : rotateAngle - degree;
 
-			ImageCopy(m_pHiddenImg, m_pImgSrc);
-			ImageProcess::rotate(m_pImgSrc, rotateAngle);
+			//ImageCopy(m_pHiddenImg, m_pImgSrc);
+			ImageProcess::rotate(m_pHiddenImg, m_pImgSrc, rotateAngle);
 		}
 		else
 		{

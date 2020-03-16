@@ -21,7 +21,7 @@ public:
 	static UINT medianFilter(LPVOID  param);
 	static UINT addNoise(LPVOID param);
 	static UINT scale(CImage* src, float scaleXNum, float scaleYNum);
-	static UINT rotate(CImage* src, float angle);
+	static UINT rotate(CImage* src, CImage* des, float angle);
 	static void CImage2Mat(CImage* cimage, cv::Mat& mat);
 	static void Mat2CImage(cv::Mat& mat, CImage& cimage);
 };

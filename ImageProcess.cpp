@@ -519,12 +519,12 @@ UINT ImageProcess::scale(CImage* src, float scaleXNum, float scaleYNum)
 	return 0;
 }
 
-UINT ImageProcess::rotate(CImage* src, float angle)
+UINT ImageProcess::rotate(CImage* src,CImage* des, float angle)
 {
 	byte* pRealData = (byte*)src->GetBits();
 	float degree = angle * PI / 180;
 
-	CImage* srcimg = src;
+	
 	/*float transMat[3][3] = {
 		{cos(angle), sin(angle),
 		-0.5f * (src->GetWidth()) * cos(angle) - 0.5f * (src->GetHeight()) * sin(angle) + 0.5f * (src->GetWidth())},
@@ -550,11 +550,7 @@ UINT ImageProcess::rotate(CImage* src, float angle)
 	byte* pBits = (byte*)dst_image->GetBits();
 	int dst_pit = dst_image->GetPitch();
 
-	float scaleXNum = (float)srcimg->GetWidth() / (float)dst_image->GetWidth();
-	float scaleYNum = (float)srcimg->GetHeight() / (float)dst_image->GetHeight();
-	float scaleNum = max(scaleXNum, scaleYNum);
-//	scale(dst_image, scaleNum, scaleNum);
-	ImageCopy(dst_image, srcimg);
+	ImageCopy(dst_image, des);
 	::PostMessage(AfxGetMainWnd()->GetSafeHwnd(), WM_TRANSFORM_ROTATE, 1, NULL);
 	return 0;
 }
