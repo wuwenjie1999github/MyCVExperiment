@@ -1,7 +1,9 @@
 #pragma once
 #include <atlimage.h>
+#include <opencv.hpp>
 #pragma once
 #define NOISE 0.2
+#define PI 3.14159265358979
 struct ThreadParam
 {
 	CImage * src;
@@ -18,4 +20,8 @@ public:
 	ImageProcess();
 	static UINT medianFilter(LPVOID  param);
 	static UINT addNoise(LPVOID param);
+	static UINT scale(CImage* src, float scaleXNum, float scaleYNum);
+	static UINT rotate(CImage* src, float angle);
+	static void CImage2Mat(CImage* cimage, cv::Mat& mat);
+	static void Mat2CImage(cv::Mat& mat, CImage& cimage);
 };

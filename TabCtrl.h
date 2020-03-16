@@ -3,6 +3,7 @@
 #include "ImageProcess.h"
 #include "NoiseDlg.h"
 #include "MedianFilterDlg.h"
+#include "TranslationDlg.h"
 class TabCtrl :
 	public CTabCtrl
 {
@@ -19,6 +20,7 @@ public:
 	//CDialogEx* m_tabPages[2];
 	NoiseDlg* noiseDlg;
 	MedianFilterDlg* medianFilterDlg;
+	TranslationDlg* translationDlg;
 
 	int m_tabCurrent;
 	int m_nNumberOfPages;

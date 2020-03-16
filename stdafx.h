@@ -45,7 +45,13 @@
 #define WM_NOISE WM_USER+2
 #endif
 
+#ifndef WM_TRANSFORM
+#define WM_TRANSFORM_SCALE WM_USER+3
+#endif
 
+#ifndef WM_TRANSFORM
+#define WM_TRANSFORM_ROTATE WM_USER+4
+#endif
 
 
 

@@ -2,8 +2,7 @@
 #include "TabCtrl.h"
 #include "resource.h"
 
-#include "NoiseDlg.h"
-#include "MedianFilterDlg.h"
+
 
 IMPLEMENT_DYNAMIC(TabCtrl, CTabCtrl)
 
@@ -13,8 +12,9 @@ TabCtrl::TabCtrl()
 	m_tabPages[1] = new MedianFilterDlg;*/
 	noiseDlg = new NoiseDlg;
 	medianFilterDlg = new MedianFilterDlg;
+	translationDlg = new TranslationDlg;
 
-	m_nNumberOfPages = 2;
+	m_nNumberOfPages = 3;
 
 }
 
@@ -24,6 +24,7 @@ TabCtrl::~TabCtrl()
 		delete m_tabPages[i];*/
 	delete noiseDlg;
 	delete medianFilterDlg;
+	delete translationDlg;
 }
 
 BEGIN_MESSAGE_MAP(TabCtrl, CTabCtrl)
@@ -42,9 +43,11 @@ void TabCtrl::Init()
 
 	noiseDlg->Create(IDD_NOISE, this);
 	medianFilterDlg->Create(IDD_MEDIAN_FILTER, this);
+	translationDlg->Create(IDD_TRANSLATION, this);
 
 	noiseDlg->ShowWindow(SW_SHOW);
 	medianFilterDlg->ShowWindow(SW_HIDE);
+	translationDlg->ShowWindow(SW_HIDE);
 
 
 	SetRectangle();
@@ -68,6 +71,7 @@ void TabCtrl::SetRectangle()
 		(m_tabPages[nCount])->SetWindowPos(&wndTop, nX, nY, nXc, nYc, SWP_HIDEWINDOW);*/
 	noiseDlg->SetWindowPos(&wndTop, nX, nY, nXc, nYc, SWP_SHOWWINDOW);
 	medianFilterDlg->SetWindowPos(&wndTop, nX, nY, nXc, nYc, SWP_HIDEWINDOW);
+	translationDlg->SetWindowPos(&wndTop, nX, nY, nXc, nYc, SWP_HIDEWINDOW);
 }
 
 
@@ -90,6 +94,9 @@ void TabCtrl::OnLButtonDown(UINT nFlags, CPoint point)
 		case 1:
 			medianFilterDlg->ShowWindow(SW_HIDE);
 			break;
+		case 2:
+			translationDlg->ShowWindow(SW_HIDE);
+			break;
 		default:
 			break;
 		}
@@ -103,6 +110,10 @@ void TabCtrl::OnLButtonDown(UINT nFlags, CPoint point)
 		case 1:
 			medianFilterDlg->ShowWindow(SW_SHOW);
 			medianFilterDlg->SetFocus();
+			break;
+		case 2:
+			translationDlg->ShowWindow(SW_SHOW);
+			translationDlg->SetFocus();
 			break;
 		default:
 			break;

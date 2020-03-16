@@ -9,6 +9,7 @@
 #define IDD_NOISE                       105
 #define IDD_MEDIAN_FILTER               106
 #define IDR_MAINFRAME                   128
+#define IDD_TRANSLATION                 132
 #define IDC_TAB                         1000
 #define IDC_NOISE_BUTTON_OPEN_ORIGINAL  1001
 #define IDC_NOISE_ORI_PIC               1002
@@ -40,16 +41,29 @@
 #define IDC_MEDIAN_LOOP_TEXT            1030
 #define IDC_MEDIAN_LOOP_TIME_TEXT       1031
 #define IDC_NOISE_BUTTON_CLEAR_OUTPUT   1032
-#define IDC_BUTTON1                     1033
 #define IDC_MEDIAN_BUTTON_CLEAR_OUTPUT  1033
+#define IDC_TRAN_BUTTON_OPEN_ORIGINAL   1034
+#define IDC_TRAN_BUTTON_PROCESS         1035
+#define IDC_TRAN_BUTTON_SCALE           1035
+#define IDC_TRAN_ORI_PIC                1036
+#define IDC_TRAN_EDIT_SCALE             1037
+#define IDC_TRAN_SCALE_TEXT             1038
+#define IDC_TRAN_ROTATE_TEXT            1039
+#define IDC_TRAN_BEI_TEXT               1040
+#define IDC_TRAN_EDIT_ROTATE            1041
+#define IDC_TRAN_DU_TEXT                1042
+#define IDC_TRAN_BUTTON_ROTATE          1043
+#define IDC_TRAN_ROTATE_DIREC           1044
+#define IDC_COMBO1                      1045
+#define IDC_TRAN_COMBO_ROTATE_DIREC     1045
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        132
+#define _APS_NEXT_RESOURCE_VALUE        134
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1034
+#define _APS_NEXT_CONTROL_VALUE         1046
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

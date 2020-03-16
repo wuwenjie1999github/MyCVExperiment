@@ -23,7 +23,8 @@ public:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
 	afx_msg LRESULT OnNoiseThreadMsgReceived(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnMedianThreadMsgReceived(WPARAM wParam, LPARAM lParam);
-
+	afx_msg LRESULT OnTranslationThreadScaleMsgReceived(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnTranslationThreadRotateMsgReceived(WPARAM wParam, LPARAM lParam);
 // 实现
 protected:
 	HICON m_hIcon;

@@ -80,6 +80,18 @@ LRESULT CMyCVExperimentDlg::OnMedianThreadMsgReceived(WPARAM wParam, LPARAM lPar
 	return 0;
 }
 
+LRESULT CMyCVExperimentDlg::OnTranslationThreadScaleMsgReceived(WPARAM wParam, LPARAM lParam)
+{
+	m_tabCtrl.translationDlg->OnTranslationScaleThreadMsgReceived(wParam, lParam);
+	return 0;
+}
+
+LRESULT CMyCVExperimentDlg::OnTranslationThreadRotateMsgReceived(WPARAM wParam, LPARAM lParam)
+{
+	m_tabCtrl.translationDlg->OnTranslationRotateThreadMsgReceived(wParam, lParam);
+	return 0;
+}
+
 
 
 BEGIN_MESSAGE_MAP(CMyCVExperimentDlg, CDialogEx)
@@ -88,6 +100,8 @@ BEGIN_MESSAGE_MAP(CMyCVExperimentDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_MESSAGE(WM_NOISE, &CMyCVExperimentDlg::OnNoiseThreadMsgReceived)
 	ON_MESSAGE(WM_MEDIAN_FILTER, &CMyCVExperimentDlg::OnMedianThreadMsgReceived)
+	ON_MESSAGE(WM_TRANSFORM_SCALE, &CMyCVExperimentDlg::OnTranslationThreadScaleMsgReceived)
+	ON_MESSAGE(WM_TRANSFORM_ROTATE, &CMyCVExperimentDlg::OnTranslationThreadRotateMsgReceived)
 //	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB, &CMyCVExperimentDlg::OnTcnSelchangeTab)
 //ON_WM_LBUTTONDOWN()
 //ON_WM_LBUTTONDOWN()
@@ -129,6 +143,7 @@ BOOL CMyCVExperimentDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	m_tabCtrl.InsertItem(0, _T("椒盐噪声"));
 	m_tabCtrl.InsertItem(1, _T("中值滤波"));
+	m_tabCtrl.InsertItem(2, _T("图像变换"));
 
 	m_tabCtrl.Init();
 
