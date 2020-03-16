@@ -273,6 +273,13 @@ void MedianFilterDlg::OnBnClickedMedianButtonProcess()
 {
 	// TODO: 在此添加控件通知处理程序代码
 
+	if (m_pImgSrc == NULL)
+	{
+		CString warning("请先打开要处理的图片。");
+		AfxMessageBox(warning);
+		return;
+	}
+
 	CComboBox* cmb_thread = ((CComboBox*)GetDlgItem(IDC_MEDIAN_PROCESS_METHOD));
 	int thread = cmb_thread->GetCurSel();
 //	CButton* clb_circulation = ((CButton*)GetDlgItem(IDC_MEDIAN_CHECK_LOOP));
